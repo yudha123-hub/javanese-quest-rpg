@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Javanese Quest RPG - Edisi Ceria</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Icon untuk Peringkat -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Reset and Basic Setup */
+        :root {
+            --bg-gradient-start: #f8b500;
+            --bg-gradient-end: #d7385e;
+            --container-bg: rgba(255, 255, 255, 0.6);
+            --border-color: #ffffff;
+            --accent-color: #7b241c; /* Maroon */
+            --text-color: #333;
+            --player-hp: #32CD32; /* LimeGreen */
+            --monster-hp: #FF4500; /* OrangeRed */
+            --button-bg: #8e44ad; /* Purple */
+            --button-shadow: #732d91;
+            --button-hover: #9b59b6;
+            --gemini-btn-bg: #ffc107; /* Amber */
+            --gemini-btn-shadow: #c79100;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        
+        .main-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1400px;
+            justify-content: center;
+        }
+
+        .game-container, .ranking-container {
+            background-color: var(--container-bg);
+            border: 4px solid var(--border-color);
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 1.5rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .game-container {
+            flex: 3;
+            min-width: 320px;
+            max-width: 900px;
+            text-align: center;
+        }
+        
+        .ranking-container {
+            flex: 1;
+            min-width: 300px;
+            height: fit-content;
+        }
+        
+        .ranking-container h2, header h1 {
+            font-family: 'Fredoka One', cursive;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+        }
+        
+        header h1 {
+             font-size: clamp(2.5rem, 6vw, 4rem);
+        }
+        
+        .ranking-container h2 {
+            font-size: 2.2rem;
+            text-align: center;
+            color: var(--accent-color);
+        }
+
+        #ranking-list {
+            list-style: none;
+            padding: 0;
+            font-size: 1.1rem;
+        }
+        
+        #ranking-list li {
+            background: rgba(255,255,255,0.5);
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        #ranking-list li:hover {
+            transform: scale(1.05);
+        }
+
+        #ranking-list li .rank-name { text-align: left; }
+        
+        #ranking-list li .rank-score {
+            font-family: 'Fredoka One', cursive;
+            color: var(--button-bg);
+        }
+        
+        #ranking-list li:nth-child(1) { border-left: 7px solid gold; }
+        #ranking-list li:nth-child(2) { border-left: 7px solid silver; }
+        #ranking-list li:nth-child(3) { border-left: 7px solid #CD7F32; }
+
+        .battle-scene {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            margin: 1.5rem 0;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .character-area {
+            flex: 1;
+            min-width: 220px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .character-area h2 {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            color: #fff;
+            background-color: var(--accent-color);
+            border-radius: 20px;
+            padding: 5px 15px;
+            display: inline-block;
+        }
+
+        .hp-bar-container {
+            background-color: rgba(0,0,0,0.1);
+            border-radius: 15px;
+            height: 35px;
+            overflow: hidden;
+            margin: 10px auto;
+            border: 3px solid white;
+        }
+
+        .hp-bar {
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #player-hp-bar { background: linear-gradient(90deg, #98FB98, var(--player-hp)); }
+        #monster-hp-bar { background: linear-gradient(90deg, #FFA07A, var(--monster-hp)); }
+        
+        #player-hp-text, #monster-hp-text {
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        }
+
+        .emoji-sprite {
+            font-size: clamp(80px, 15vw, 140px);
+            line-height: 1;
+            margin-top: 15px;
+            filter: drop-shadow(0 8px 8px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
+        }
+        
+        /* Animasi */
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+          0%, 100% { transform: translate(0, 0) rotate(0); }
+          25% { transform: translate(-12px, 5px) rotate(-5deg); }
+          75% { transform: translate(12px, -5px) rotate(5deg); }
+        }
+
+        .attack { animation: attack 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+        @keyframes attack {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+        }
+
+        .action-area {
+            background-color: rgba(255, 255, 255, 0.3);
+            padding: 1.5rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        #question-text {
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            font-weight: 600;
+            min-height: 50px;
+            flex-grow: 1;
+        }
+
+        #gemini-hint-button {
+            background-color: var(--gemini-btn-bg);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1rem;
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 5px var(--gemini-btn-shadow);
+            flex-shrink: 0;
+        }
+        #gemini-hint-button:disabled {
+            background-color: #9e9e9e;
+            box-shadow: 0 5px #757575;
+            cursor: not-allowed;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-button {
+            background-color: var(--button-bg);
+            border: none;
+            color: white;
+            padding: 18px;
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            font-family: 'Fredoka One', cursive;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.2s ease-out;
+            box-shadow: 0 6px var(--button-shadow);
+        }
+
+        .option-button:hover:not(:disabled) {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px var(--button-shadow);
+        }
+        
+        .option-button:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px var(--button-shadow);
+        }
+
+        .option-button:disabled { cursor: not-allowed; opacity: 0.7; }
+        .option-button.correct { background-color: var(--player-hp); box-shadow: 0 6px #28a428; }
+        .option-button.incorrect { background-color: var(--monster-hp); box-shadow: 0 6px #cc3700; }
+
+        #feedback-text {
+            font-size: 1.3em;
+            min-height: 30px;
+            font-weight: bold;
+        }
+        
+        #hint-container {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 15px;
+            min-height: 24px;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed; z-index: 100; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        .modal.visible { opacity: 1; visibility: visible; }
+        .hidden { display: none !important; }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-gradient-end) 0%, var(--bg-gradient-start) 100%);
+            padding: clamp(1.5rem, 5vw, 3rem);
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            width: 90%; max-width: 500px;
+            transform: scale(0.7);
+            transition: transform 0.4s ease;
+        }
+        .modal.visible .modal-content { transform: scale(1); }
+
+        #modal-title { font-family: 'Fredoka One', cursive; font-size: clamp(2.5rem, 6vw, 3.5rem); }
+        
+        #final-score-text { font-size: 1.8rem; font-weight: bold; margin: 1rem 0; font-family: 'Fredoka One', cursive; }
+
+        .gemini-result-container {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        
+        #save-score-form input {
+            width: 80%; padding: 12px; border-radius: 10px;
+            border: 3px solid white; font-size: 1.1rem;
+            margin-bottom: 0.5rem; text-align: center;
+        }
+        
+        #form-feedback {
+            color: #7b241c; font-weight: bold; min-height: 20px;
+        }
+        
+        .modal-buttons button {
+            background-color: var(--accent-color);
+            color: white; padding: 15px 30px;
+            font-size: 1.3em; font-family: 'Fredoka One', cursive;
+            border: none; border-radius: 15px;
+            cursor: pointer; margin-top: 10px;
+            transition: all 0.2s;
+            box-shadow: 0 6px #5a1811;
+        }
+        
+        .modal-buttons button:hover {
+            transform: translateY(-2px);
+            background-color: #a93226;
+            box-shadow: 0 8px #5a1811;
+        }
+        
+        .modal-buttons .gemini-button {
+             background-color: var(--gemini-btn-bg);
+             box-shadow: 0 6px var(--gemini-btn-shadow);
+        }
+        
+        .modal-buttons .gemini-button:hover {
+             background-color: #ffca28;
+             box-shadow: 0 8px var(--gemini-btn-shadow);
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="game-container">
+            <header>
+                <h1>Javanese Quest</h1>
+            </header>
+
+            <main class="battle-scene">
+                <!-- Area Pemain -->
+                <div class="character-area" id="player-area">
+                    <h2>Satria Basa</h2>
+                    <div id="player-sprite" class="emoji-sprite">🧑‍🌾</div>
+                    <div class="hp-bar-container">
+                        <div class="hp-bar" id="player-hp-bar"></div>
+                    </div>
+                    <p id="player-hp-text">HP: 100/100</p>
+                </div>
+
+                <!-- Area Monster -->
+                <div class="character-area" id="monster-area">
+                    <h2 id="monster-name">Buta Aksara</h2>
+                    <div id="monster-sprite" class="emoji-sprite">👹</div>
+                    <div class.hp-bar-container">
+                        <div class="hp-bar" id="monster-hp-bar"></div>
+                    </div>
+                    <p id="monster-hp-text">HP: 80/80</p>
+                </div>
+            </main>
+
+            <footer class="action-area">
+                <div class="question-header">
+                    <p id="question-text"></p>
+                    <button id="gemini-hint-button" title="Gunakan Bantuan Ajaib">✨ Bantuan</button>
+                </div>
+                <div id="options-container" class="options-grid"></div>
+                <div id="feedback-container">
+                    <p id="feedback-text"></p>
+                </div>
+                <div id="hint-container"></div>
+            </footer>
+        </div>
+
+        <div class="ranking-container">
+            <h2><i class="fas fa-trophy"></i> Peringkat</h2>
+            <ol id="ranking-list"></ol>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="game-over-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-message"></p>
+            <p id="final-score-text"></p>
+            <div id="gemini-prize-container" class="gemini-result-container hidden"></div>
+            <div id="gemini-summary-container" class="gemini-result-container hidden"></div>
+            <div class="modal-buttons">
+                <button id="gemini-prize-button" class="gemini-button hidden">✨ Lihat Pusakamu</button>
+                <button id="gemini-summary-button" class="gemini-button hidden">✨ Cek Rapor Sinau</button>
+                <div id="save-score-form" class="hidden">
+                    <input type="text" id="player-name-input" placeholder="Tulis Jenengmu" maxlength="10" minlength="3">
+                    <p id="form-feedback"></p>
+                    <button id="save-score-button">Simpan</button>
+                </div>
+                <button id="restart-button" class="hidden">Main Maneh</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // ELEMEN DOM
+            const playerHPBar = document.getElementById('player-hp-bar');
+            const playerHPText = document.getElementById('player-hp-text');
+            const monsterHPBar = document.getElementById('monster-hp-bar');
+            const monsterHPText = document.getElementById('monster-hp-text');
+            const monsterName = document.getElementById('monster-name');
+            const monsterSprite = document.getElementById('monster-sprite');
+            const playerSprite = document.getElementById('player-sprite');
+            const questionText = document.getElementById('question-text');
+            const optionsContainer = document.getElementById('options-container');
+            const feedbackText = document.getElementById('feedback-text');
+            const rankingList = document.getElementById('ranking-list');
+            const geminiHintButton = document.getElementById('gemini-hint-button');
+            const hintContainer = document.getElementById('hint-container');
+
+            const modal = document.getElementById('game-over-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const finalScoreText = document.getElementById('final-score-text');
+            const geminiPrizeContainer = document.getElementById('gemini-prize-container');
+            const geminiPrizeButton = document.getElementById('gemini-prize-button');
+            const geminiSummaryContainer = document.getElementById('gemini-summary-container');
+            const geminiSummaryButton = document.getElementById('gemini-summary-button');
+            const saveScoreForm = document.getElementById('save-score-form');
+            const playerNameInput = document.getElementById('player-name-input');
+            const formFeedback = document.getElementById('form-feedback');
+            const saveScoreButton = document.getElementById('save-score-button');
+            const restartButton = document.getElementById('restart-button');
+
+            // BANK SOAL & MONSTER
+            const questions = {
+                nglegena: [{ q: "Aksara Jawa 'ga' yaiku...", o: ["ꦒ", "ꦢ", "ꦧ", "ꦔ"], a: "ꦒ" }, { q: "Iki aksara apa: ꦗ?", o: ["ca", "ja", "nya", "ya"], a: "ja" }],
+                sandhangan: [{ q: "Supaya muni 'i', aksara 'sa' diwenehi...", o: ["wulu", "suku", "pepet", "taling"], a: "wulu" }, { q: "Tulisan 'sega' nggunakake sandhangan...", o: ["wulu", "suku", "pepet", "taling"], a: "taling" }],
+                krama: [{ q: "Basa kramane 'turu' yaiku...", o: ["tilem", "sare", "guling", "bobok"], a: "sare" }, { q: "Yen ketemu guru, becike ngucap...", o: ["Hai", "Halo", "Sugeng enjing", "Woi"], a: "Sugeng enjing" }],
+                paribasan: [{ q: "Becik ketitik, ala ...", o: ["lara", "ketara", "lunga", "mara"], a: "ketara" }, { q: "Sapa sing salah bakal...", o: ["kuwat", "bungah", "menang", "seleh"], a: "seleh" }],
+                tembung_aran: [{ q: "Endi sing kalebu tembung aran (kata benda)?", o: ["buku", "mlayu", "abang", "pinter"], a: "buku" }, { q: "Kucing, meja, lan watu iku tuladha...", o: ["Tembung Kriya", "Tembung Aran", "Tembung Sifat", "Tembung Panggandheng"], a: "Tembung Aran" }],
+                tembung_kriya: [{ q: "Endi sing kalebu tembung kriya (kata kerja)?", o: ["mangan", "ireng", "meja", "ayu"], a: "mangan" }, { q: "'Simbah lagi maca koran', sing dadi tembung kriya yaiku...", o: ["Simbah", "lagi", "maca", "koran"], a: "maca" }],
+                pitakon: [{ q: "Tembung pitakon kanggo wektu yaiku...", o: ["kapan", "sapa", "apa", "pira"], a: "kapan" }, { q: "Yen arep nakokake rega, nggunakake tembung...", o: ["ing ngendi", "genea", "kepriye", "pira"], a: "pira" }],
+            };
+
+            const monsters = [
+                { name: "Buta Aksara", hp: 80, category: "nglegena", damage: 15, emoji: "👹" },
+                { name: "Jin Sandhangan", hp: 100, category: "sandhangan", damage: 20, emoji: "✨" },
+                { name: "Raseksa Krama", hp: 120, category: "krama", damage: 25, emoji: "🙇" },
+                { name: "Dewa Paribasan", hp: 100, category: "paribasan", damage: 20, emoji: "👴" },
+                { name: "Gatotkaca Aran", hp: 110, category: "tembung_aran", damage: 25, emoji: "💪" },
+                { name: "Anoman Kriya", hp: 150, category: "tembung_kriya", damage: 30, emoji: "🐒" },
+                { name: "Semar Pitakon", hp: 180, category: "pitakon", damage: 35, emoji: "🤔" }
+            ];
+
+            // STATUS GAME
+            let player = { hp: 100, maxHp: 100, emoji: "🧑‍🌾" };
+            let currentMonsterIndex = 0;
+            let currentMonster;
+            let currentQuestion;
+            let isAnswering = true;
+            let score = 0;
+            let magicHintsLeft = 3;
+            let performanceTracker;
+
+            const initPerformanceTracker = () => {
+                performanceTracker = {};
+                Object.keys(questions).forEach(cat => {
+                    performanceTracker[cat] = { correct: 0, wrong: 0 };
+                });
+            };
+
+            // FUNGSI RANKING
+            function displayRanking() {
+                const highScores = JSON.parse(localStorage.getItem('javaneseQuestRanking')) || [];
+                rankingList.innerHTML = '';
+                if(highScores.length === 0){
+                    rankingList.innerHTML = '<li>Durung ana sing juara. Ayo dadi sing pertama!</li>';
+                    return;
+                }
+                highScores.forEach((scoreItem, index) => {
+                    const icon = ["🥇", "🥈", "🥉"][index] || "⭐";
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span class="rank-name">${icon} ${scoreItem.name}</span> <span class="rank-score">${scoreItem.score}</span>`;
+                    rankingList.appendChild(li);
+                });
+            }
+
+            function saveScore(playerName, playerScore) {
+                const newScore = { name: playerName, score: playerScore };
+                let highScores = JSON.parse(localStorage.getItem('javaneseQuestRanking')) || [];
+                highScores.push(newScore);
+                highScores.sort((a, b) => b.score - a.score);
+                highScores.splice(5);
+                localStorage.setItem('javaneseQuestRanking', JSON.stringify(highScores));
+                displayRanking();
+            }
+
+            // FUNGSI GAME
+            function startGame() {
+                player.hp = 100;
+                currentMonsterIndex = 0;
+                score = 0;
+                magicHintsLeft = 3;
+                initPerformanceTracker();
+                updateHintButton();
+                playerSprite.textContent = player.emoji;
+                loadMonster();
+                updateStats();
+                modal.classList.remove('visible');
+            }
+
+            async function loadMonster() {
+                if (currentMonsterIndex >= monsters.length) {
+                    endGame(true);
+                    return;
+                }
+                currentMonster = { ...monsters[currentMonsterIndex], maxHp: monsters[currentMonsterIndex].hp };
+                monsterName.textContent = currentMonster.name;
+                monsterSprite.textContent = currentMonster.emoji;
+                monsterSprite.style.opacity = 0;
+                setTimeout(() => monsterSprite.style.opacity = 1, 100);
+                
+                await getGeminiMonsterIntro();
+                displayNewQuestion();
+                updateStats();
+            }
+            
+            function displayNewQuestion() {
+                isAnswering = true;
+                hintContainer.innerHTML = "";
+                geminiHintButton.disabled = magicHintsLeft <= 0 || !isAnswering;
+                
+                const category = currentMonster.category;
+                const questionPool = questions[category];
+                currentQuestion = questionPool[Math.floor(Math.random() * questionPool.length)];
+                
+                questionText.textContent = currentQuestion.q;
+                optionsContainer.innerHTML = "";
+                
+                const shuffledOptions = [...currentQuestion.o].sort(() => Math.random() - 0.5);
+
+                shuffledOptions.forEach(option => {
+                    const button = document.createElement('button');
+                    button.classList.add('option-button');
+                    button.textContent = option;
+                    button.onclick = () => checkAnswer(option, button);
+                    optionsContainer.appendChild(button);
+                });
+            }
+
+            function checkAnswer(selectedAnswer, button) {
+                if (!isAnswering) return;
+                isAnswering = false;
+                geminiHintButton.disabled = true;
+
+                const buttons = optionsContainer.querySelectorAll('.option-button');
+                buttons.forEach(btn => btn.disabled = true);
+                
+                const category = currentMonster.category;
+                if (String(selectedAnswer) === String(currentQuestion.a)) {
+                    performanceTracker[category].correct++;
+                    button.classList.add('correct');
+                    const damage = 30 + Math.floor(Math.random() * 10);
+                    currentMonster.hp -= damage;
+                    feedbackText.textContent = `Bener! Jurusmu ngenani ${damage} poin!`;
+                    feedbackText.style.color = "#28a428";
+                    monsterSprite.classList.add('shake');
+                    playerSprite.classList.add('attack');
+                } else {
+                    performanceTracker[category].wrong++;
+                    button.classList.add('incorrect');
+                    player.hp -= currentMonster.damage;
+                    feedbackText.textContent = `Waduh, salah! Kowe kena serangan ${currentMonster.damage} poin!`;
+                    feedbackText.style.color = "#cc3700";
+                    playerSprite.classList.add('shake');
+                    buttons.forEach(btn => {
+                        if (String(btn.textContent) === String(currentQuestion.a)) btn.classList.add('correct');
+                    });
+                }
+
+                updateStats();
+
+                setTimeout(async () => {
+                    monsterSprite.classList.remove('shake');
+                    playerSprite.classList.remove('shake');
+                    playerSprite.classList.remove('attack');
+
+                    if (currentMonster.hp <= 0) {
+                        score += 100;
+                        await getGeminiVictoryChant(); // Dapatkan mantra kemenangan
+                        currentMonsterIndex++;
+                        setTimeout(loadMonster, 2500);
+                    } else if (player.hp <= 0) {
+                        endGame(false);
+                    } else {
+                        setTimeout(displayNewQuestion, 2000);
+                    }
+                }, 2000);
+            }
+
+            function updateStats() {
+                player.hp = Math.max(0, player.hp);
+                playerHPBar.style.width = `${(player.hp / player.maxHp) * 100}%`;
+                playerHPText.textContent = `HP: ${player.hp}/${player.maxHp}`;
+                
+                monsterHPBar.style.width = `${(Math.max(0, currentMonster.hp) / currentMonster.maxHp) * 100}%`;
+                monsterHPText.textContent = `HP: ${Math.max(0, currentMonster.hp)}/${currentMonster.maxHp}`;
+            }
+
+            function updateHintButton() {
+                geminiHintButton.innerHTML = `✨ Bantuan (${magicHintsLeft})`;
+                geminiHintButton.disabled = magicHintsLeft <= 0 || !isAnswering;
+            }
+            
+            async function callGemini(prompt) {
+                 const apiKey = ""; // Disediakan oleh environment
+                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                 
+                 const response = await fetch(apiUrl, {
+                     method: 'POST',
+                     headers: { 'Content-Type': 'application/json' },
+                     body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                 });
+                 
+                 if (!response.ok) {
+                     throw new Error(`API error! status: ${response.status}`);
+                 }
+                 
+                 const result = await response.json();
+                 
+                 if (result.candidates && result.candidates[0].content.parts[0].text) {
+                     return result.candidates[0].content.parts[0].text;
+                 } else {
+                     throw new Error("Format respons tidak valid.");
+                 }
+            }
+            
+            async function getGeminiMonsterIntro() {
+                feedbackText.textContent = `Muncul ${currentMonster.name}!`;
+                try {
+                     const prompt = `Buat satu kalimat perkenalan yang singkat, lucu, dan menantang untuk monster game anak-anak bernama "${currentMonster.name}". Monster ini ahli dalam materi Bahasa Jawa "${currentMonster.category}". Gunakan Bahasa Jawa campur Indonesia yang mudah dimengerti.`;
+                     const intro = await callGemini(prompt);
+                     feedbackText.textContent = `"${intro}"`;
+                } catch(error) {
+                    console.error("Gemini Intro Error:", error);
+                }
+            }
+            
+            async function getGeminiVictoryChant() {
+                feedbackText.textContent = `Hore! ${currentMonster.name} kalah! (+100 Skor)`;
+                 try {
+                     const prompt = `Buat sebuah teriakan kemenangan (victory chant) yang singkat dan lucu untuk pahlawan anak-anak yang baru saja mengalahkan monster bernama "${currentMonster.name}" dengan keahlian Bahasa Jawa. Gunakan Bahasa Jawa atau campur Indonesia. Maksimal 10 kata.`;
+                     const chant = await callGemini(prompt);
+                     feedbackText.textContent = `"${chant}" (+100 Skor)`;
+                } catch(error) {
+                    console.error("Gemini Victory Chant Error:", error);
+                }
+            }
+
+            async function getGeminiHint() {
+                if (magicHintsLeft <= 0) return;
+
+                magicHintsLeft--;
+                updateHintButton();
+                geminiHintButton.disabled = true;
+                hintContainer.innerHTML = "Njaluk tulung marang dewa...";
+
+                try {
+                    const prompt = `Jelaskan cara menjawab soal Bahasa Jawa ini untuk anak SD: "${currentQuestion.q}". Jangan berikan jawabannya langsung. Beri petunjuk yang mudah dimengerti. Gunakan Bahasa Indonesia.`;
+                    const hintText = await callGemini(prompt);
+                    hintContainer.innerHTML = `<b>Wangsit Dewa:</b> ${hintText.replace(/\*/g, '<br>')}`;
+                } catch(error) {
+                    console.error("Gemini Hint Error:", error);
+                    hintContainer.textContent = "Duh, dewane lagi semedi. Coba maneh mengko.";
+                    magicHintsLeft++;
+                    updateHintButton();
+                }
+            }
+            
+            async function getGeminiSummary() {
+                geminiSummaryButton.disabled = true;
+                geminiSummaryContainer.innerHTML = "Ndelok rapor sinaumu...";
+                
+                try {
+                    const performanceString = JSON.stringify(performanceTracker);
+                    const prompt = `Seorang anak SD baru saja selesai bermain game Bahasa Jawa. Ini data performa mereka (benar/salah) per kategori: ${performanceString}. Berikan ringkasan yang positif dan menyemangati dalam 2-3 kalimat. Sebutkan satu materi yang paling mereka kuasai dan satu materi yang butuh sedikit latihan lagi. Beri mereka gelar kehormatan dalam Bahasa Jawa di akhir. Gunakan Bahasa Indonesia campur Jawa yang mudah dimengerti.`;
+                    const summaryText = await callGemini(prompt);
+                    geminiSummaryContainer.innerHTML = `<b>Rapor Sinau:</b><br>${summaryText}`;
+                } catch(error) {
+                    console.error("Gemini Summary Error:", error);
+                    geminiSummaryContainer.textContent = "Gagal nggawe rapor. Tapi kowe tetep juara!";
+                }
+            }
+            
+            async function getGeminiMagicPrize() {
+                geminiPrizeButton.disabled = true;
+                geminiPrizeContainer.innerHTML = "Nggolek pusaka ampuh...";
+                
+                try {
+                    const prompt = `Seorang pahlawan anak-anak baru saja menyelesaikan game petualangan Bahasa Jawa. Buat nama dan deskripsi singkat (1-2 kalimat) untuk sebuah "pusaka" atau "harta karun" imajiner yang mereka menangkan. Hadiahnya harus terdengar keren, lucu, dan berhubungan dengan budaya atau sastra Jawa. Gunakan Bahasa Indonesia. Contoh: "Kamu menemukan Blangkon Sastrajendra! Blangkon ini membuatmu bisa memahami semua tembang macapat."`;
+                    const prizeText = await callGemini(prompt);
+                    geminiPrizeContainer.innerHTML = `<b>Pusaka Ampuhmu:</b><br>${prizeText}`;
+                } catch(error) {
+                    console.error("Gemini Prize Error:", error);
+                    geminiPrizeContainer.textContent = "Pusakane ilang. Tapi kemenanganmu iku hadiah paling apik!";
+                }
+            }
+
+
+            function endGame(isWin) {
+                modal.classList.add('visible');
+                // Sembunyikan semua elemen di modal dulu
+                saveScoreForm.classList.add('hidden');
+                restartButton.classList.add('hidden');
+                geminiSummaryContainer.classList.add('hidden');
+                geminiSummaryButton.classList.add('hidden');
+                geminiPrizeContainer.classList.add('hidden');
+                geminiPrizeButton.classList.add('hidden');
+                // Reset disable status
+                geminiSummaryButton.disabled = false;
+                geminiPrizeButton.disabled = false;
+
+                if (isWin) {
+                    score += player.hp;
+                    modalTitle.textContent = "KOWE MENANG!";
+                    modalMessage.textContent = "Selamat, kowe wis dadi Satria Basa Jawa sejati!";
+                    finalScoreText.textContent = `Skor Akhir: ${score}`;
+                    geminiPrizeButton.classList.remove('hidden');
+                    geminiSummaryButton.classList.remove('hidden');
+                    saveScoreForm.classList.remove('hidden');
+                } else {
+                    modalTitle.textContent = "COBA MANEH!";
+                    modalMessage.textContent = "Ojo nyerah, sinau maneh ben luwih pinter!";
+                    finalScoreText.textContent = `Skor Akhir: ${score}`;
+                    geminiSummaryButton.classList.remove('hidden');
+                    restartButton.classList.remove('hidden');
+                }
+            }
+            
+            saveScoreButton.addEventListener('click', () => {
+                const playerName = playerNameInput.value.trim();
+                formFeedback.textContent = "";
+                if (playerName.length >= 3 && playerName.length <= 10) {
+                    saveScore(playerName, score);
+                    saveScoreForm.classList.add('hidden');
+                    restartButton.classList.remove('hidden');
+                    geminiSummaryButton.classList.add('hidden');
+                    geminiPrizeButton.classList.add('hidden');
+                } else {
+                    formFeedback.textContent = 'Jenengmu kudu 3-10 aksara ya!';
+                }
+            });
+            
+            playerNameInput.addEventListener('input', () => {
+                formFeedback.textContent = "";
+            });
+            
+            geminiHintButton.addEventListener('click', getGeminiHint);
+            geminiSummaryButton.addEventListener('click', () => {
+                geminiSummaryContainer.classList.remove('hidden');
+                getGeminiSummary();
+            });
+             geminiPrizeButton.addEventListener('click', () => {
+                geminiPrizeContainer.classList.remove('hidden');
+                getGeminiMagicPrize();
+            });
+            restartButton.addEventListener('click', startGame);
+            
+            // INISIALISASI
+            displayRanking();
+            startGame();
+        });
+    </script>
+</body>
+</html>
+
